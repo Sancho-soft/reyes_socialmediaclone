@@ -7,6 +7,7 @@ class Postlist extends StatefulWidget {
   const Postlist({super.key, required this.userdata});
 
   final UserData userdata;
+
   @override
   State<Postlist> createState() => _PostlistState();
 }
@@ -14,20 +15,20 @@ class Postlist extends StatefulWidget {
 class _PostlistState extends State<Postlist> {
   var nametxtStyle = const TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
-  gotoPage(BuildContext context, dynamic page) {
+  void gotoPage(BuildContext context, dynamic page) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => page));
   }
 
-  Widget buttons(UserPost userpost) => Row(
+  Widget buttons(UserPost userPost) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       TextButton.icon(
         style: TextButton.styleFrom(
-          foregroundColor: (userpost.isLiked) ? Colors.blue : Colors.grey,
+          foregroundColor: userPost.isLiked ? Colors.blue : Colors.grey,
         ),
         onPressed: () {
           setState(() {
-            userpost.isLiked = (userpost.isLiked) ? false : true;
+            userPost.isLiked = !userPost.isLiked;
           });
         },
         icon: const Icon(Icons.thumb_up),
@@ -48,48 +49,48 @@ class _PostlistState extends State<Postlist> {
     ],
   );
 
-  Widget postCount(UserPost userpost) => Row(
+  Widget postCount(UserPost userPost) => Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
-      Text('${userpost.numComments} Comments'),
-      const Text(''),
+      Text('${userPost.numComments} Comments'),
       const SizedBox(width: 20),
-      Text('${userpost.numshare} Shares'),
+      Text('${userPost.numshare} Shares'),
     ],
   );
 
-  Widget postImage(UserPost userpost) => Padding(
+  Widget postImage(UserPost userPost) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 10),
-    child: Container(
-      height: 350,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(userpost.postimg),
-          fit: BoxFit.fill,
+    child: ClipRRect(
+      child: Container(
+        height: 350,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(userPost.postimg),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     ),
   );
 
-  Widget postHeader(UserPost userpost) => Row(
+  Widget postHeader(UserPost userPost) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.start,
     children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: CircleAvatar(
           radius: 20,
-          backgroundImage: AssetImage(userpost.userimg),
+          backgroundImage: AssetImage(userPost.userimg),
         ),
       ),
       Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(userpost.username, style: nametxtStyle),
+          Text(userPost.username, style: nametxtStyle),
           Row(
             children: [
-              Text('${userpost.time} . '),
+              Text('${userPost.time} · '),
               const Icon(Icons.people, size: 18),
             ],
           ),
@@ -98,37 +99,37 @@ class _PostlistState extends State<Postlist> {
     ],
   );
 
-  Widget showPost(UserPost userpost) => Column(
+  Widget showPost(UserPost userPost) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      postHeader(userpost),
+      postHeader(userPost),
       Container(
         margin: const EdgeInsets.all(8),
-        child: Row(children: [Text(userpost.postcontent, style: nametxtStyle)]),
+        child: Text(userPost.postcontent, style: nametxtStyle),
       ),
-      postImage(userpost),
-      postCount(userpost),
+      postImage(userPost),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: postCount(userPost),
+      ),
       const Divider(),
-      buttons(userpost),
-      SizedBox(height: 10, child: Container(color: Colors.grey)),
+      buttons(userPost),
+      Container(height: 10, color: Colors.grey[200]),
       const SizedBox(height: 15),
     ],
   );
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: ListView(
-        shrinkWrap: true,
-        children: widget.userdata.userList.map((UserPost) {
-          return InkWell(
-            onTap: () {
-              gotoPage(context, ProfileView(userPost: UserPost));
-            },
-            child: showPost(UserPost),
-          );
-        }).toList(),
-      ),
+    return Column(
+      children: widget.userdata.userList.map((userPost) {
+        return InkWell(
+          onTap: () {
+            gotoPage(context, ProfileView(userPost: userPost));
+          },
+          child: showPost(userPost),
+        );
+      }).toList(),
     );
   }
 }

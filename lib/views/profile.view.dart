@@ -3,12 +3,20 @@ import 'package:reyes_socialmediaclone/model/usercomment.dart';
 import 'package:reyes_socialmediaclone/model/userdata.dart';
 import 'package:reyes_socialmediaclone/model/userpost.dart';
 
-class ProfileView extends StatelessWidget {
-  ProfileView({super.key, required this.userPost});
-  final UserPost userPost;
-  final UserData userData = UserData();
+class ProfileView extends StatefulWidget {
+  const ProfileView({super.key, required this.userPost});
 
-  var nametxtstyle = const TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+  final UserPost userPost;
+
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  final UserData userData = UserData();
+  final TextEditingController _commentController = TextEditingController();
+
+  var nametxtStyle = const TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
   var boldTxtStyle = const TextStyle(fontWeight: FontWeight.bold);
   var boldTxtStyle1 = const TextStyle(
     fontSize: 16,
@@ -19,32 +27,25 @@ class ProfileView extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Text(userComment.commenterTime),
-        const SizedBox(width: 15),
-        const Text('Like'),
-        const SizedBox(width: 15),
-        const Text('Reply'),
-      ],
+      children: const [Text('Like'), SizedBox(width: 15), Text('Reply')],
     ),
   );
 
   Widget commentDesc(UserComment userComment) => Padding(
-    padding: const EdgeInsets.all(10),
+    padding: const EdgeInsets.all(10.0),
     child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(userComment.commenterName, style: boldTxtStyle),
         const SizedBox(height: 5),
-        Row(children: [Text(userComment.commenterContent)]),
+        Text(userComment.commenterContent),
       ],
     ),
   );
 
   Widget commentSpace(UserComment userComment) => Container(
     decoration: const BoxDecoration(
-      color: Color.fromARGB(40, 158, 169, 67),
+      color: Color.fromARGB(35, 158, 158, 158),
       borderRadius: BorderRadius.all(Radius.circular(20)),
     ),
     child: commentDesc(userComment),
@@ -52,16 +53,17 @@ class ProfileView extends StatelessWidget {
 
   Widget commenterPic(UserComment userComment) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10),
-    child: CircleAvatar(backgroundImage: AssetImage(userComment.commenterImg)),
+    child: CircleAvatar(
+      backgroundImage: AssetImage(userComment.commenterImg),
+      radius: 20,
+    ),
   );
 
-  Widget usercommenterline(UserPost userpost, UserComment userComment) => Row(
+  Widget usercommenterline(UserComment userComment) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.start,
     children: [
       commenterPic(userComment),
       Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [commentSpace(userComment), commentBtn(userComment)],
       ),
@@ -69,20 +71,18 @@ class ProfileView extends StatelessWidget {
   );
 
   Widget userpostdetails(UserComment userComment) => Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-      const SizedBox(height: 15),
-      usercommenterline(userPost, userComment),
-    ],
+    children: [const SizedBox(height: 15), usercommenterline(userComment)],
   );
 
-  Widget commenters(UserPost userpost) => Column(
-    mainAxisAlignment: MainAxisAlignment.start,
+  Widget commenters() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Divider(color: Colors.grey),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(children: [Text(userPost.numshare, style: boldTxtStyle)]),
+        child: Row(
+          children: [Text(widget.userPost.numshare, style: boldTxtStyle)],
+        ),
       ),
       const SizedBox(height: 15),
       Padding(
@@ -97,10 +97,9 @@ class ProfileView extends StatelessWidget {
     ],
   );
 
-  Widget buttons(UserPost userpost) => Column(
-    mainAxisAlignment: MainAxisAlignment.start,
+  Widget buttons() => Column(
     children: [
-      Divider(color: Colors.grey),
+      const Divider(color: Colors.grey),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
@@ -108,7 +107,9 @@ class ProfileView extends StatelessWidget {
           children: [
             TextButton.icon(
               style: TextButton.styleFrom(
-                foregroundColor: userpost.isLiked ? Colors.grey : Colors.blue,
+                foregroundColor: widget.userPost.isLiked
+                    ? Colors.grey
+                    : Colors.blue,
               ),
               onPressed: () {},
               icon: const Icon(Icons.thumb_up, size: 20),
@@ -132,27 +133,25 @@ class ProfileView extends StatelessWidget {
     ],
   );
 
-  Widget userline(UserPost userpost) => Row(
+  Widget userline() => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.start,
     children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: CircleAvatar(
-          backgroundImage: AssetImage(userpost.userimg),
+          backgroundImage: AssetImage(widget.userPost.userimg),
           radius: 20,
         ),
       ),
       Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(userpost.username, style: nametxtstyle),
+          Text(widget.userPost.username, style: nametxtStyle),
           const SizedBox(height: 5),
           Row(
             children: [
-              Text(userpost.time),
-              const Text('.'),
+              Text(widget.userPost.time),
+              const Text(' · '),
               const Icon(Icons.group, size: 15, color: Colors.grey),
             ],
           ),
@@ -161,20 +160,71 @@ class ProfileView extends StatelessWidget {
     ],
   );
 
-  Widget postimage(UserPost userpost) => Padding(
-    padding: const EdgeInsets.all(10),
+  Widget postimage() => Padding(
+    padding: const EdgeInsets.all(10.0),
     child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [Text(userpost.postcontent)]),
+        Text(
+          widget.userPost.postcontent,
+          style: const TextStyle(fontSize: 16),
+          softWrap: true,
+        ),
         const SizedBox(height: 15),
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: Image.asset(
-            userpost.postimg,
+            widget.userPost.postimg,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
+        ),
+      ],
+    ),
+  );
+
+  Widget commentInput() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    child: Row(
+      children: [
+        CircleAvatar(
+          backgroundImage: AssetImage(userData.myUserAccount.img),
+          radius: 18,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextField(
+            controller: _commentController,
+            decoration: InputDecoration(
+              hintText: 'Write a comment...',
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 10,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.send, color: Colors.blue),
+          onPressed: () {
+            if (_commentController.text.trim().isEmpty) return;
+
+            final newComment = UserComment(
+              commenterImg: userData.myUserAccount.img,
+              commenterName: userData.myUserAccount.name,
+              commenterTime: 'Now',
+              commenterContent: _commentController.text.trim(),
+            );
+
+            setState(() {
+              userData.commentList.insert(0, newComment);
+              _commentController.clear();
+            });
+          },
         ),
       ],
     ),
@@ -185,24 +235,43 @@ class ProfileView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        bottomOpacity: 0.0,
         elevation: 0.0,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: Colors.grey),
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
+      body: Column(
         children: [
-          userline(userPost),
-          postimage(userPost),
-          buttons(userPost),
-          commenters(userPost),
-          ...userData.commentList.map(
-            (userComment) => userpostdetails(userComment),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                userline(),
+                postimage(),
+                buttons(),
+                commenters(),
+                const SizedBox(height: 10),
+                ...userData.commentList.map((c) => userpostdetails(c)),
+                const SizedBox(height: 70),
+              ],
+            ),
+          ),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    offset: Offset(0, -2),
+                    blurRadius: 5,
+                  ),
+                ],
+              ),
+              child: commentInput(),
+            ),
           ),
         ],
       ),
